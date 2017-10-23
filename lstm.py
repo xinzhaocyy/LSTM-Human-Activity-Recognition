@@ -69,7 +69,7 @@ def load_y(y_path):
     )
     file.close()
     # Substract 1 to each output class for friendly 0-based indexing
-    return y_ - 1
+    return y_
 
 
 class Config(object):
@@ -88,7 +88,7 @@ class Config(object):
         self.n_steps = len(X_train[0])  # 128 time_steps per series
 
         # Training
-        self.learning_rate = 0.0025
+        self.learning_rate = 0.025
         self.lambda_loss_amount = 0.0015
         self.training_epochs = 300
         self.batch_size = 1500
@@ -96,7 +96,7 @@ class Config(object):
         # LSTM structure
         self.n_inputs = len(X_train[0][0])  # Features count is of 9: 3 * 3D sensors features over time
         self.n_hidden = 32  # nb of neurons inside the neural network
-        self.n_classes = 6  # Final output classes
+        self.n_classes = 3  # Final output classes
         self.W = {
             'hidden': tf.Variable(tf.random_normal([self.n_inputs, self.n_hidden])),
             'output': tf.Variable(tf.random_normal([self.n_hidden, self.n_classes]))
@@ -178,44 +178,36 @@ if __name__ == "__main__":
 
     # Those are separate normalised input features for the neural network
     INPUT_SIGNAL_TYPES = [
-        "body_acc_x_",
-        "body_acc_y_",
-        "body_acc_z_",
-        "body_gyro_x_",
-        "body_gyro_y_",
-        "body_gyro_z_",
-        "total_acc_x_",
-        "total_acc_y_",
-        "total_acc_z_"
+        "ECG",
+        "HR",
+        "GSR",
+        "RESP"
     ]
 
     # Output classes to learn how to classify
     LABELS = [
-        "WALKING",
-        "WALKING_UPSTAIRS",
-        "WALKING_DOWNSTAIRS",
-        "SITTING",
-        "STANDING",
-        "LAYING"
+        "0-back",
+        "1-back",
+        "2-back"
     ]
 
-    DATA_PATH = "data/"
-    DATASET_PATH = DATA_PATH + "UCI HAR Dataset/"
+    DATA_PATH = "/Users/xin/Documents/github_repository/edream/DLAB/codes/new/"
+    DATASET_PATH = DATA_PATH 
     print("\n" + "Dataset is now located at: " + DATASET_PATH)
     TRAIN = "train/"
     TEST = "test/"
 
     X_train_signals_paths = [
-        DATASET_PATH + TRAIN + "Inertial Signals/" + signal + "train.txt" for signal in INPUT_SIGNAL_TYPES
+        DATASET_PATH +TRAIN+ signal + ".txt" for signal in INPUT_SIGNAL_TYPES
     ]
     X_test_signals_paths = [
-        DATASET_PATH + TEST + "Inertial Signals/" + signal + "test.txt" for signal in INPUT_SIGNAL_TYPES
+        DATASET_PATH + TEST + signal + ".txt" for signal in INPUT_SIGNAL_TYPES
     ]
     X_train = load_X(X_train_signals_paths)
     X_test = load_X(X_test_signals_paths)
 
-    y_train_path = DATASET_PATH + TRAIN + "y_train.txt"
-    y_test_path = DATASET_PATH + TEST + "y_test.txt"
+    y_train_path = DATASET_PATH +TRAIN+  "label_train.txt"
+    y_test_path = DATASET_PATH + TEST + "label_test.txt"
     y_train = one_hot(load_y(y_train_path))
     y_test = one_hot(load_y(y_test_path))
 
@@ -223,7 +215,7 @@ if __name__ == "__main__":
     # Step 2: define parameters for model
     # -----------------------------------
 
-    config = Config(X_train, X_test)
+    config = Config(X_train,X_test)
     print("Some useful info to get an insight on dataset's shape and normalisation:")
     print("features shape, labels shape, each features mean, each features standard deviation")
     print(X_test.shape, y_test.shape,
